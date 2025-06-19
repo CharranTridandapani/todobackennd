@@ -9,7 +9,14 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+// ✅ Configure CORS to allow only your S3 frontend
+const corsOptions = {
+  origin: 'http://project-node.s3-website.ap-south-1.amazonaws.com',
+  methods: ['GET', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Initialize Supabase client
@@ -23,7 +30,7 @@ app.get('/tasks', async (req, res) => {
   const { data, error } = await supabase
     .from('tasks')
     .select('*');
-  
+
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });
@@ -55,3 +62,5 @@ app.delete('/tasks/:id', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+
