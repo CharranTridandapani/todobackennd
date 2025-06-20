@@ -1,0 +1,27 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches:
+      - main  # deploy when code is pushed to main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}             # 3.108.52.231 stored in secrets
+          username: ${{ secrets.EC2_USERNAME }}     # ubuntu (as per your EC2 login)
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/todobackennd
+            git pull origin main
+            cd server
+            npm install
+            pm2 restart all
