@@ -3,7 +3,7 @@ name: Deploy Backend to EC2
 on:
   push:
     branches:
-      - main
+      - main  # deploy when code is pushed to main
 
 jobs:
   deploy:
@@ -13,22 +13,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Copy files to EC2
-        uses: appleboy/scp-action@v0.1.7
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_KEY }}
-          source: "server/*"
-          target: "/home/ubuntu/todobackennd/server"
-
-      - name: SSH into EC2 and restart PM2 process
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_KEY }}
+          host: ${{ secrets.EC2_HOST }}             # 3.108.52.231 stored in secrets
+          username: ${{ secrets.EC2_USERNAME }}     # ubuntu (as per your EC2 login)
+          key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/todobackennd/server
+            cd /home/ubuntu/todobackennd
+            git pull origin main
+            cd server
             npm install
-            pm2 restart backend-server || pm2 start index.js --name backend-server
+            pm2 restart all
