@@ -20,7 +20,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}     # ubuntu (as per your EC2 login)
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/todobackennd
+            cd /home/ubuntu/todobackennd/server
             git pull origin main
             cd server
             npm install
