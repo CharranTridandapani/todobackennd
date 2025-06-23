@@ -64,3 +64,4 @@ app.listen(port, () => {
 });
 
 console.log("🚀 Auto-deploy works!");
+console.log("🚀 ci/cd working");
