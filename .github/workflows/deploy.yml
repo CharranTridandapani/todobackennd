@@ -3,7 +3,7 @@ name: Deploy Backend to EC2
 on:
   push:
     branches:
-      - main  # deploy when code is pushed to main
+      - main
 
 jobs:
   deploy:
@@ -13,15 +13,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Deploy to EC2
+      - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}             # 3.108.52.231 stored in secrets
-          username: ${{ secrets.EC2_USERNAME }}     # ubuntu (as per your EC2 login)
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_KEY }}
           script: |
             cd /home/ubuntu/todobackennd
-            git pull origin main
-            cd server
-            npm install
-            pm2 restart all
+            git fetch origin
+            git checkout main
+            git reset --hard origin/main
+
+            # Stop and remove old container
+            docker rm -f todobackend-container || true
+
+            # Rebuild image
+            docker build -t todobackennd .
+
+            # Run new container with env
+            docker run -d --env-file .env -p 5000:5000 --name todobackend-container todobackennd

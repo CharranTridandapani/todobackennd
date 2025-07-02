@@ -66,3 +66,4 @@ app.listen(port, () => {
 console.log("🚀 Auto-deploy works!");
 console.log("🚀 ci/cd working");
 console.log("Jenkins test next state")
+console.log("docker test next state")
